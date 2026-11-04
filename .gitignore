@@ -1,0 +1,75 @@
+__pycache__/
+*.py[cod]
+*.log
+.manim/
+tmp/
+.project-git/
+media/**
+!media/final/
+!media/final/videos/
+!media/final/videos/articulation_film/
+!media/final/videos/articulation_film/720p30/
+!media/final/videos/articulation_film/720p30/ArticulationFilm.mp4
+!media/prototype/
+media/prototype/**
+!media/prototype/videos/
+media/prototype/videos/**
+!media/prototype/videos/trace_preview/
+media/prototype/videos/trace_preview/**
+!media/prototype/videos/trace_preview/480p15/
+media/prototype/videos/trace_preview/480p15/**
+!media/prototype/videos/trace_preview/480p15/TracePreview.mp4
+
+# Guia local de ejecucion; mantener fuera de Git
+GUIA_EJECUCION.txt
+
+# Contenido privado de trabajo local, no publicar
+tests/
+docs/
+narration/
+requirements-narration.txt
+src/narration/
+src/animation/narrated_intro.py
+scripts/generate_intro_audio.py
+scripts/generate_intro_narration.ps1
+scripts/setup_narration.ps1
+scripts/run_tests.ps1
+scripts/build_report.ps1
+scripts/git.ps1
+
+# Entornos, cachés y archivos locales
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+*.bak
+*.backup
+*.swp
+*.tmp
+media/prototype/**
+
+# Archivos privados
+tests/
+docs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.env
+
+# Temporales de Manim
+!media/final/
+media/final/*
+!media/final/videos/
+media/final/videos/*
+!media/final/videos/articulation_film/
+media/final/videos/articulation_film/*
+!media/final/videos/articulation_film/720p30/
+media/final/videos/articulation_film/720p30/*
+!media/final/videos/articulation_film/720p30/ArticulationFilm.mp4
