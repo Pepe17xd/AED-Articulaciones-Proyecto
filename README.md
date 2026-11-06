@@ -69,6 +69,8 @@ Resultado esperado: articulaciones `('A', 'B', 'D', 'E')`. El orden de vecinos e
 
 ## Animaciones y video
 
+La edición narrada se configura mediante [`narration/cues.json`](narration/cues.json), y sus instrucciones de regeneración están en [`narration/REGENERAR.md`](narration/REGENERAR.md). Las señales se insertan en momentos visuales de una escena derivada de la película original. El resultado se guarda en `output/Proyecto_AED_Articulaciones_Final.mp4`.
+
 Renderiza primero la escena corta de traza a baja calidad. Escribe bajo `media/previews/` y conserva intacto el video final:
 
 ```powershell

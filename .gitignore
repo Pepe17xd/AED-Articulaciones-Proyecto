@@ -26,7 +26,10 @@ GUIA_EJECUCION.txt
 # Contenido privado de trabajo local, no publicar
 tests/
 docs/
-narration/
+/narration/*
+!/narration/cues.json
+!/narration/guion_completo.md
+!/narration/REGENERAR.md
 requirements-narration.txt
 src/narration/
 src/animation/narrated_intro.py
