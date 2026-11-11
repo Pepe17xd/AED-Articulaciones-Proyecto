@@ -386,13 +386,16 @@ class NarratedArticulationFilm(Scene):
         self.narrate("12_raiz_uno")
         self.wait(0.3)
 
-        two_graph = Graph.from_edges([("R", "L"), ("R", "M")])
-        two_positions = {"R": (1.4, 0.15, 0), "L": (3.0, 0.95, 0), "M": (3.0, -0.65, 0)}
+        two_graph = Graph.from_edges([("R", "S"), ("R", "T")])
+        two_positions = {"R": (1.4, 0.15, 0), "S": (3.0, 0.95, 0), "T": (3.0, -0.65, 0)}
         _, two_edges, two_nodes, _, _ = graph_view(self, two_graph, two_positions, radius=0.29)
         two_trace = run_tarjan(two_graph)
         validate_trace(two_graph, two_trace)
-        root_event = next(e for e in two_trace.events if e.type == "identify_articulation" and e.vertex == "R")
-        note2 = Text(f"hijos = {root_event.candidate} → R sí es articulación", font_size=19, color=GOLD).move_to((3.15, -1.55, 0))
+        root_event = next(e for e in two_trace.events if e.type == "identify_articulation" and e.vertex == "R" and e.reason == "root_has_multiple_dfs_children")
+        root_children = sum(e.type == "traverse_tree_edge" and e.vertex == "R" for e in two_trace.events)
+        if dict(two_trace.parent)["R"] is not None or root_children <= 1 or root_event.candidate != root_children:
+            raise ValueError("El ejemplo requiere una raíz DFS con varios hijos")
+        note2 = Text(f"hijos = {root_children} → R sí es articulación", font_size=19, color=GOLD).move_to((3.15, -1.55, 0))
         self.play(two_nodes["R"].animate.set_fill(GOLD, opacity=0.45), FadeIn(note2), run_time=0.6)
         self.narrate("13_raiz_dos")
         self.wait(0.3)

@@ -1,6 +1,6 @@
 # Regeneración de la película narrada
 
-Requisitos: Python 3.11, Manim 0.21.0 y sus dependencias nativas, LaTeX con dvisvgm, FFmpeg y FFprobe en PATH, conexión a Internet y `edge-tts` 7.3.1 o posterior. Instala Manim con `pip install -r requirements.txt` y la voz con `pip install "edge-tts>=7.3.1"`. La versión 7.2.8 instalada inicialmente recibió HTTP 403; la 7.3.1 se comprobó en este entorno.
+Requisitos: Python 3.11, Manim 0.21.0 y sus dependencias nativas, LaTeX con dvisvgm, FFmpeg y FFprobe en PATH y conexión a Internet. Instala las dependencias Python con `python -m pip install -r requirements-film-narration.txt`. La versión 7.2.8 de `edge-tts` recibió HTTP 403; se requiere 7.3.1 o posterior. El archivo local `requirements-narration.txt` corresponde a otro prototipo y no es necesario para esta película.
 
 En PowerShell desde la raíz, con el entorno apropiado activo:
 

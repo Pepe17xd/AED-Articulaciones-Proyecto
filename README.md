@@ -1,6 +1,6 @@
 # Proyecto AED: puntos de articulación en grafos
 
-Implementación original del algoritmo DFS de Tarjan para detectar puntos de articulación en grafos no dirigidos. El proyecto registra y valida los eventos de la ejecución, y Manim Community los convierte en una animación educativa. Incluye el informe y el video final.
+Implementación original del algoritmo DFS de Tarjan para detectar puntos de articulación en grafos no dirigidos. El proyecto registra y valida los eventos de la ejecución, y Manim Community los convierte en una animación educativa.
 
 **Integrantes:** Antony Yonel Rosales Esteban y Jeseph Imanol Burgos Ochoa.
 
@@ -71,6 +71,8 @@ Resultado esperado: articulaciones `('A', 'B', 'D', 'E')`. El orden de vecinos e
 
 La edición narrada se configura mediante [`narration/cues.json`](narration/cues.json), y sus instrucciones de regeneración están en [`narration/REGENERAR.md`](narration/REGENERAR.md). Las señales se insertan en momentos visuales de una escena derivada de la película original. El resultado se guarda en `output/Proyecto_AED_Articulaciones_Final.mp4`.
 
+Para la versión narrada, instala también `python -m pip install -r requirements-film-narration.txt`; requiere FFmpeg, FFprobe e Internet. Los audios son generados localmente. El MP4 narrado es una salida distinta y su publicación queda pendiente de decidir.
+
 Renderiza primero la escena corta de traza a baja calidad. Escribe bajo `media/previews/` y conserva intacto el video final:
 
 ```powershell
@@ -95,9 +97,9 @@ El comando final escribe `media/final/videos/articulation_film/720p30/Articulati
 
 ## Archivos de entrega
 
-- Informe PDF de cuatro páginas: [`output/pdf/informe_articulaciones.pdf`](output/pdf/informe_articulaciones.pdf).
 - Video final 720p30: [`media/final/videos/articulation_film/720p30/ArticulationFilm.mp4`](media/final/videos/articulation_film/720p30/ArticulationFilm.mp4).
-- Enlaces directos en GitHub: [informe](https://github.com/Pepe17xd/AED-Articulaciones-Proyecto/blob/main/output/pdf/informe_articulaciones.pdf) y [video](https://github.com/Pepe17xd/AED-Articulaciones-Proyecto/blob/main/media/final/videos/articulation_film/720p30/ArticulationFilm.mp4).
+
+El MP4 incluido es un render anterior a la corrección del ejemplo de raíz. Hay que regenerarlo y revisarlo antes de publicar una versión corregida. Los tests y el informe son materiales locales.
 
 ## Organización del código
 
@@ -107,8 +109,4 @@ El comando final escribe `media/final/videos/articulation_film/720p30/Articulati
 - `src/animation/intro_graph.py`: definición compartida del grafo introductorio.
 - `scripts/render_video.ps1`: render de producción en Windows.
 - `media/final/`: MP4 final incluido en la entrega.
-- `output/pdf/`: informe final.
-
-## Informe
-
-El PDF final se incluye en el repositorio. Para regenerarlo en Windows se necesita XeLaTeX y el archivo fuente privado de la entrega, que no forma parte de esta publicación.
+- `requirements-film-narration.txt`: dependencias Python adicionales para la versión narrada.
