@@ -2,7 +2,7 @@
 
 Implementación original del algoritmo DFS de Tarjan para detectar puntos de articulación en grafos no dirigidos. El proyecto registra y valida los eventos de la ejecución, y Manim Community los convierte en una animación educativa.
 
-**Integrantes:** Antony Yonel Rosales Esteban y Jeseph Imanol Burgos Ochoa.
+**Integrantes:** Antony Yonel Rosales Esteban, Itta Zhair Saavedra Clavijo y Jeseph Imanol Burgos Ochoa.
 
 ## Qué calcula
 
