@@ -110,3 +110,57 @@ El MP4 incluido es un render anterior a la corrección del ejemplo de raíz. Hay
 - `scripts/render_video.ps1`: render de producción en Windows.
 - `media/final/`: MP4 final incluido en la entrega.
 - `requirements-film-narration.txt`: dependencias Python adicionales para la versión narrada.
+
+## Edición narrada v2 (en desarrollo)
+
+La película base sigue usando `run_tarjan` y `validate_trace`; `src/animation/graph_view.py` reúne los elementos visuales compartidos. La escena narrada se regenera a partir de la película actual con `scripts/prepare_narrated_v2.py`; reutiliza los MP3 existentes de `assets/audio/narration/`. Las señales se reproducen durante la animación y la siguiente señal espera a que termine la anterior. La mezcla v2 usa la textura original sintetizada del proyecto, atenuación lateral por la voz y fundidos; escribe en `output/final_v2/`, sin modificar el MP4 anterior.
+
+Con Python y las dependencias de `requirements-film-narration.txt`, FFmpeg, FFprobe, LaTeX y dvisvgm disponibles en PATH, desde PowerShell:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/prepare_narrated_v2.py
+.\.venv\Scripts\python.exe -m manim render -ql --disable_caching --progress_bar none --media_dir media/v2_preview src/animation/narrated_articulation_film_v2.py NarratedArticulationFilmV2
+.\.venv\Scripts\python.exe -m manim render -qh --fps 30 --disable_caching --progress_bar none --media_dir media/v2_final src/animation/narrated_articulation_film_v2.py NarratedArticulationFilmV2
+.\.venv\Scripts\python.exe scripts/mix_final_v2.py media/v2_final/videos/narrated_articulation_film_v2/1080p30/NarratedArticulationFilmV2.mp4
+```
+
+Si los ejecutables locales descargados están en `tmp/ffmpeg-download`, antepón `$env:PATH = "$(Resolve-Path 'tmp/ffmpeg-download');$env:PATH"` durante esa sesión. La carpeta temporal y los audios generados no forman parte del repositorio; para regenerar los MP3 consulta `narration/REGENERAR.md`. La version v2 se conserva como salida anterior en `output/final_v2/`; la producción v3 se documenta a continuación.
+
+## Producción v3 final
+
+Antes de reemplazar la película de esta carpeta, conserva la anterior como `output/final_v3/Articulaciones_v3_pre_guion.mp4`. La mezcla nueva mantiene la versión v2 intacta.
+
+La película compartida vive en `src/animation/film_v3.py`. La misma clase `ArticulationFilmV3` admite voz o modo silencioso con `AED_NARRATION=1` / `0`; `src/animation/narrated_film_v3.py` importa esa escena. `narration/cues.json` contiene 27 señales del guion actualizado. Sus voces se guardan aparte en `assets/audio/narration_v3_guion/`; los 19 MP3 previos de `assets/audio/narration/` permanecen intactos. El algoritmo y las animaciones de la ejecución usan `run_tarjan` y `validate_trace`.
+
+En PowerShell, desde la raíz del repositorio, con `.venv`, Manim Community, PyAV, LaTeX/dvisvgm y FFmpeg/FFprobe disponibles:
+
+```powershell
+$env:PATH = "$(Resolve-Path 'tmp/ffmpeg-download');$env:PATH"
+if (-not (Test-Path 'output/final_v3/Articulaciones_v3_pre_guion.mp4')) { Copy-Item -LiteralPath 'output/final_v3/Articulaciones_v3.mp4' -Destination 'output/final_v3/Articulaciones_v3_pre_guion.mp4' }
+$env:AED_NARRATION = '1'
+$env:AED_NARRATION_DIR = 'assets/audio/narration_v3_guion'
+.\.venv\Scripts\python.exe scripts/generate_film_narration.py --script narration/cues.json --output-dir assets/audio/narration_v3_guion --voice es-MX-JorgeNeural --rate '+40%' --overwrite
+.\.venv\Scripts\python.exe -m manim render -qh --fps 30 --disable_caching --progress_bar none --media_dir media/v3_guion_final src/animation/film_v3.py ArticulationFilmV3
+.\.venv\Scripts\python.exe scripts/mix_final_v2.py media/v3_guion_final/videos/film_v3/1080p30/ArticulationFilmV3.mp4 --output output/final_v3/Articulaciones_v3.mp4 --music-gain 0.8
+```
+
+El mezclador conserva la voz y `assets/audio/ambient_original.flac`, aplica ducking, limitador y fundidos. Para renderizar sin voz, establece `$env:AED_NARRATION = '0'` y renderiza la misma escena con Manim; no invoques el mezclador de narración. Ejecuta las pruebas con `.\.venv\Scripts\python.exe -m unittest discover -s tests -v`.
+
+Video de entrega v3 (Full HD 1080p30, 4:51.7): [output/final_v3/Articulaciones_v3.mp4](output/final_v3/Articulaciones_v3.mp4). La v3 anterior se conserva en `output/final_v3/Articulaciones_v3_pre_guion.mp4`; v2 permanece en `output/final_v2/`.
+
+## Edición editorial optimizada
+
+El guion de `narration/cues.json` conserva los siete bloques y queda en 680 palabras. Las 27 voces a +15% suman 248.71 s. La edición final narrada y mezclada dura 254.8 s (4:14.8), en Full HD 1080p30; la mezcla conserva la música ambiental y el ducking. Archivo: `output/final_v3_optimizada/Articulaciones_v3_optimizada.mp4`. No sobrescribe los MP4 anteriores.
+
+En PowerShell desde la raiz del repositorio:
+
+```powershell
+$env:PATH = (Resolve-Path 'tmp\ffmpeg-download').Path + ';' + $env:PATH
+$env:AED_NARRATION = '1'
+$env:AED_NARRATION_DIR = 'assets/audio/narration_v3_editorial'
+.\.venv\Scripts\python.exe scripts/generate_film_narration.py --script narration/cues.json --output-dir assets/audio/narration_v3_editorial --voice es-MX-JorgeNeural --rate '+15%' --overwrite
+.\.venv\Scripts\python.exe -m manim render -qh --fps 30 --disable_caching --progress_bar none --media_dir media/v3_editorial_final src/animation/film_v3.py ArticulationFilmV3
+.\.venv\Scripts\python.exe scripts/mix_final_v2.py media/v3_editorial_final/videos/film_v3/1080p30/ArticulationFilmV3.mp4 --output output/final_v3_optimizada/Articulaciones_v3_optimizada.mp4 --music-gain 0.8
+```
+
+Las pruebas se ejecutan con ` .\.venv\Scripts\python.exe -m unittest discover -s tests -v`.

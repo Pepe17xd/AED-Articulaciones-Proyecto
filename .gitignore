@@ -1,5 +1,6 @@
 ﻿# Pruebas e informe locales
-/tests/
+/tests/*
+!/tests/test_film_v2.py
 /docs/informe.tex
 /output/pdf/
 *.pdf
@@ -62,3 +63,5 @@ dist/
 /scripts/run_tests.ps1
 /scripts/build_report.ps1
 /scripts/git.ps1
+
+!/tests/test_film_v3.py

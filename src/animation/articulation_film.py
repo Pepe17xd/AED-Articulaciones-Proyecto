@@ -38,80 +38,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from articulations import Graph, run_tarjan, validate_trace  # noqa: E402
 from animation.intro_graph import INTRO_NAMES, INTRO_POSITIONS, intro_graph  # noqa: E402
 
-BG = "#10131B"
-MAIN_EDGES = [
-    ("A", "B"),
-    ("A", "G"),
-    ("B", "C"),
-    ("C", "D"),
-    ("D", "B"),
-    ("D", "E"),
-    ("E", "F"),
-]
-MAIN_POSITIONS = {
-    "A": (-4.4, 0.65, 0),
-    "B": (-2.7, 0.65, 0),
-    "C": (-1.0, 1.75, 0),
-    "D": (0.7, 0.65, 0),
-    "E": (2.4, 0.65, 0),
-    "F": (4.1, 0.65, 0),
-    "G": (-4.4, -1.5, 0),
-}
-
-
-def main_graph() -> Graph:
-    return Graph.from_edges(MAIN_EDGES)
-
-
-def graph_view(
-    scene: Scene,
-    graph: Graph,
-    positions: dict[str, tuple[float, float, float]],
-    *,
-    radius: float = 0.31,
-    value_labels: bool = False,
-    node_labels: dict[str, str] | None = None,
-) -> tuple[
-    VGroup,
-    dict[tuple[str, str], Line],
-    dict[str, Circle],
-    dict[str, Text],
-    dict[str, Text],
-]:
-    """Build and animate a graph illustration; no algorithmic state is stored."""
-    edges: dict[tuple[str, str], Line] = {}
-    nodes: dict[str, Circle] = {}
-    labels: dict[str, Text] = {}
-    values: dict[str, Text] = {}
-    edge_group = VGroup()
-    for left, right in graph.edges:
-        line = Line(positions[left], positions[right], color=GREY_B, stroke_width=3)
-        edges[(left, right)] = line
-        edge_group.add(line)
-
-    node_group = VGroup()
-    label_group = VGroup()
-    value_group = VGroup()
-    for vertex in graph.vertices:
-        node = Circle(radius=radius, color=BLUE_C, stroke_width=2.5, fill_opacity=0.08)
-        node.move_to(positions[vertex])
-        label_text = (node_labels or {}).get(vertex, vertex)
-        label = Text(label_text, font_size=19 if len(label_text) > 1 else 23, color=WHITE).move_to(node)
-        nodes[vertex] = node
-        labels[vertex] = label
-        node_group.add(node)
-        label_group.add(label)
-        if value_labels:
-            value = Text("tin —   low —", font_size=14, color=GREY_B)
-            value.next_to(node, DOWN, buff=0.17)
-            values[vertex] = value
-            value_group.add(value)
-
-    scene.play(Create(edge_group), run_time=0.65)
-    scene.play(FadeIn(node_group), FadeIn(label_group), run_time=0.45)
-    if value_group:
-        scene.add(value_group)
-    return VGroup(edge_group, node_group, label_group, value_group), edges, nodes, values, labels
+from animation.graph_view import BG, MAIN_POSITIONS, main_graph, graph_view
 
 
 class ArticulationFilm(Scene):
@@ -231,9 +158,8 @@ class ArticulationFilm(Scene):
             if event.type == "discover_vertex":
                 discovered[event.vertex] = event.tin_value
                 lows[event.vertex] = event.low_value
-                replacement = Text(f"tin {event.tin_value}   low {event.low_value}", font_size=14, color=WHITE).move_to(values[event.vertex])
+                replacement = Text(f"tin {event.tin_value}   low {event.low_value}", font_size=18, color=WHITE).move_to(values[event.vertex])
                 self.play(nodes[event.vertex].animate.set_fill(BLUE_C, opacity=0.3), Transform(values[event.vertex], replacement), run_time=0.35)
-                values[event.vertex] = replacement
             elif event.type == "traverse_tree_edge" and event.edge:
                 self.play(edges[event.edge].animate.set_color(BLUE_C).set_stroke(width=4), run_time=0.22)
             elif event.type == "observe_back_edge" and event.vertex == "D":
@@ -242,11 +168,14 @@ class ArticulationFilm(Scene):
                 self.wait(4.0)
             elif event.type == "update_low" and event.vertex == "D":
                 lows[event.vertex] = event.low_value
-                replacement = Text(f"tin {discovered[event.vertex]}   low {event.low_value}", font_size=14, color=GOLD).move_to(values[event.vertex])
+                replacement = Text(f"tin {discovered[event.vertex]}   low {event.low_value}", font_size=18, color=GOLD).move_to(values[event.vertex])
                 self.play(Transform(values[event.vertex], replacement), run_time=0.4)
-                values[event.vertex] = replacement
                 caption = self.change_caption(caption, "low[D] retrocede hasta tin[B] gracias a esa alternativa.")
                 self.wait(5.0)
+            elif event.type == "update_low":
+                lows[event.vertex] = event.low_value
+                replacement = Text(f"tin {discovered[event.vertex]}   low {event.low_value}", font_size=18, color=GOLD).move_to(values[event.vertex])
+                self.play(Transform(values[event.vertex], replacement), run_time=0.4)
 
         formula = MathTex(
             r"low[u]=\min\bigl(tin[u],\ tin[ancestros],\ low[hijos]\bigr)",
@@ -287,13 +216,12 @@ class ArticulationFilm(Scene):
                 current = event.vertex
                 discovered[event.vertex] = event.tin_value
                 lows[event.vertex] = event.low_value
-                new_value = Text(f"tin {event.tin_value}   low {event.low_value}", font_size=14, color=WHITE).move_to(values[event.vertex])
+                new_value = Text(f"tin {event.tin_value}   low {event.low_value}", font_size=18, color=WHITE).move_to(values[event.vertex])
                 self.play(
                     nodes[event.vertex].animate.set_fill(BLUE_C, opacity=0.35),
                     Transform(values[event.vertex], new_value),
                     run_time=0.45,
                 )
-                values[event.vertex] = new_value
                 caption = self.change_caption(caption, f"Descubrimos {event.vertex}: tin = low = {event.tin_value}", size=20)
                 self.wait(1.3)
             elif event.type == "traverse_tree_edge":
@@ -313,17 +241,16 @@ class ArticulationFilm(Scene):
                 lows[event.vertex] = event.low_value
                 new_value = Text(
                     f"tin {discovered[event.vertex]}   low {event.low_value}",
-                    font_size=14,
+                    font_size=18,
                     color=GOLD,
                 ).move_to(values[event.vertex])
                 self.play(Transform(values[event.vertex], new_value), run_time=0.42)
-                values[event.vertex] = new_value
                 caption = self.change_caption(caption, f"Al volver, low[{event.vertex}] = {event.candidate}.", size=20)
                 self.wait(2.8)
             else:
                 nodes[event.vertex].set_fill(ORANGE, opacity=0.52)
                 condition = (
-                    f"low[hijo] = {event.candidate} ≥ tin[{event.vertex}]"
+                    f"low[{event.neighbor}] = {event.candidate} ≥ tin[{event.vertex}] = {event.tin_value}"
                     if event.reason == "low_child_ge_tin_vertex"
                     else f"raíz con {event.candidate} hijos DFS"
                 )
@@ -331,6 +258,17 @@ class ArticulationFilm(Scene):
                 self.play(Create(ring), run_time=0.35)
                 caption = self.change_caption(caption, f"Articulación {event.vertex}: {condition}.", color=GOLD, size=20)
                 self.wait(3.0)
+                if event.vertex == "E":
+                    # F is isolated when E and its incident edges are removed.
+                    incident = [edges[edge] for edge in graph.edges if event.vertex in edge]
+                    self.play(nodes["E"].animate.set_opacity(0.12),
+                              *(edge.animate.set_opacity(0.12) for edge in incident),
+                              nodes["F"].animate.set_fill(RED_C, opacity=0.55), run_time=0.8)
+                    caption = self.change_caption(caption, "Sin E, F queda aislado del resto del grafo.", color=GOLD, size=20)
+                    self.wait(2.0)
+                    self.play(nodes["E"].animate.set_opacity(1),
+                              *(edge.animate.set_opacity(1) for edge in incident),
+                              nodes["F"].animate.set_fill(BLUE_C, opacity=0.35), run_time=0.6)
                 self.play(FadeOut(ring), run_time=0.18)
 
         caption = self.change_caption(
@@ -348,12 +286,17 @@ class ArticulationFilm(Scene):
         right_heading = Text("Dos hijos DFS", font_size=22, color=GOLD).move_to((3.0, 1.75, 0))
         self.play(FadeIn(left_heading), FadeIn(right_heading), run_time=0.5)
 
-        one_graph = Graph.from_edges([("A", "B"), ("B", "C")])
-        one_positions = {"A": (-4.4, 0.15, 0), "B": (-2.9, 0.15, 0), "C": (-1.4, 0.15, 0)}
+        one_graph = Graph.from_edges([("A", "B"), ("B", "C"), ("A", "C")])
+        one_positions = {"A": (-4.4, 0.15, 0), "B": (-2.9, 0.9, 0), "C": (-1.4, 0.15, 0)}
         _, one_edges, one_nodes, _, _ = graph_view(self, one_graph, one_positions, radius=0.29)
         one_trace = run_tarjan(one_graph)
         validate_trace(one_graph, one_trace)
         one_root_children = sum(e.type == "traverse_tree_edge" and e.vertex == "A" for e in one_trace.events)
+        # In the triangle A has two graph neighbors, but DFS reaches C via B.
+        for event in one_trace.events:
+            if event.type == "traverse_tree_edge":
+                self.play(one_edges[event.edge].animate.set_color(BLUE_C).set_stroke(width=5), run_time=0.4)
+        self.play(one_edges[("A", "C")].animate.set_color(GOLD), run_time=0.4)
         note1 = Text(f"hijos = {one_root_children} → A no es articulación", font_size=19, color=GREEN_C).move_to((-2.9, -1.0, 0))
         self.play(one_nodes["A"].animate.set_fill(GREEN_C, opacity=0.25), FadeIn(note1), run_time=0.6)
         self.wait(5.0)
@@ -425,6 +368,7 @@ class ArticulationFilm(Scene):
         credits = VGroup(
             Text("Proyecto AED · Articulaciones en grafos", font_size=19, color=GREY_B),
             Text("Antony Yonel Rosales Esteban", font_size=19, color=WHITE),
+            Text("Itta Zhair Saavedra Clavijo", font_size=19, color=WHITE),
             Text("Jeseph Imanol Burgos Ochoa", font_size=19, color=WHITE),
         ).arrange(DOWN, buff=0.2).move_to((0, -1.55, 0))
         self.play(FadeOut(result), FadeOut(takeaway), FadeIn(credits, shift=0.15 * UP), run_time=0.75)
