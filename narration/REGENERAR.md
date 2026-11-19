@@ -38,3 +38,17 @@ Antes de reemplazar una entrega existente, respaldala con `Copy-Item output/fina
 ## Guion editorial v3
 
 `narration/cues.json` contiene 680 palabras en 27 senales. Los MP3 van a `assets/audio/narration_v3_editorial/`, separados de las versiones previas. A +15% los audios suman 248.71 s; la vista previa con animacion mide 254.7 s. Usa los comandos de la seccion "Edicion editorial optimizada" del README para generar la salida Full HD nueva.
+
+## Edicion v4
+
+La v4 agrega una explicacion visual de la propagacion de `low` al regresar de un hijo, cambia el rotulo del ejemplo de camino y titula explicitamente el caso borde de la raiz DFS. La fuente de escena y guion se aislan en `src/animation/film_v4.py` y `narration/cues_v4.json`. El MP4 mezclado se guarda en `output/final_v4/Articulaciones_v4.mp4`.
+
+Desde PowerShell en la raiz, con Manim, FFmpeg, FFprobe, LaTeX/dvisvgm y las dependencias instaladas:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/generate_film_narration.py --script narration/cues_v4.json --output-dir assets/audio/narration_v4 --voice es-MX-JorgeNeural --rate '+15%' --overwrite
+$env:AED_NARRATION = '1'
+$env:AED_NARRATION_DIR = 'assets/audio/narration_v4'
+.\.venv\Scripts\python.exe -m manim render -qh --fps 30 --disable_caching --progress_bar none --media_dir media/v4_final src/animation/film_v4.py ArticulationFilmV4
+.\.venv\Scripts\python.exe scripts/mix_final_v2.py media/v4_final/videos/film_v4/1080p30/ArticulationFilmV4.mp4 --output output/final_v4/Articulaciones_v4.mp4 --music-gain 0.8
+```
